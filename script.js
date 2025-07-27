@@ -1,6 +1,8 @@
 // script.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOMContentLoaded event fired. Script is running.'); // Debugging log
+
     // Get references to HTML elements
     const mainContentWrapper = document.getElementById('main-content-wrapper');
     const parkBenchButton = document.getElementById('park-bench-button');
@@ -10,6 +12,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const startMatchButton = document.getElementById('start-match-button');
     const matchResults = document.getElementById('match-results');
     const resetTournamentButton = document.getElementById('reset-tournament-button');
+
+    // Debugging: Check if the button element was found
+    if (parkBenchButton) {
+        console.log('Park bench button element found in DOM.');
+    } else {
+        console.error('Park bench button element NOT found! Check ID in HTML.');
+    }
 
     // Tournament state variables
     let players = [
@@ -107,20 +116,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Event listener for the park bench button
-    parkBenchButton.addEventListener('click', () => {
-        // 1. Start spinning out the main content
-        mainContentWrapper.classList.add('animate-spin-out');
+    if (parkBenchButton) { // Ensure button exists before adding listener
+        parkBenchButton.addEventListener('click', () => {
+            console.log('Park bench button clicked!'); // Debugging log
+            // 1. Start spinning out the main content
+            mainContentWrapper.classList.add('animate-spin-out');
 
-        // 2. After animation, hide main content and show tournament section
-        setTimeout(() => {
-            mainContentWrapper.style.display = 'none';
-            tournamentSection.style.display = 'flex'; // Show the tournament section
-            tournamentSection.classList.add('animate-spin-in'); // Spin in the tournament section
+            // 2. After animation, hide main content and show tournament section
+            setTimeout(() => {
+                mainContentWrapper.style.display = 'none';
+                tournamentSection.style.display = 'flex'; // Show the tournament section
+                tournamentSection.classList.add('animate-spin-in'); // Spin in the tournament section
 
-            // Initialize tournament display
-            displayPlayers();
-        }, 1200); // Match this timeout to the animation duration (1.2s)
-    });
+                // Initialize tournament display
+                displayPlayers();
+            }, 1200); // Match this timeout to the animation duration (1.2s)
+        });
+    }
+
 
     // Event listener for the "Simulate Next Match" button
     startMatchButton.addEventListener('click', simulateMatch);
