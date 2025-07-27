@@ -327,43 +327,25 @@
     </div>
 
     <script>
-        console.log('JavaScript is loading...'); // Debug log
-        
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM Content Loaded - starting initialization'); // Debug log
-            
             // Tournament state
             let players = [];
             let matches = [];
             let currentMatchIndex = 0;
             let knockoutMatches = [];
             let currentKnockoutIndex = 0;
-            let knockoutStage = 'semifinals'; // semifinals, third-place, final
+            let knockoutStage = 'semifinals';
 
             // Get DOM elements
             const mainContentWrapper = document.getElementById('main-content-wrapper');
             const parkBenchButton = document.getElementById('park-bench-button');
             const tournamentSection = document.getElementById('tournament-section');
             
-            console.log('Main elements found:', {
-                mainContentWrapper: !!mainContentWrapper,
-                parkBenchButton: !!parkBenchButton,
-                tournamentSection: !!tournamentSection
-            });
-            
             const playerSetupPhase = document.getElementById('player-setup-phase');
             const playerCountInput = document.getElementById('player-count');
             const confirmPlayerCountBtn = document.getElementById('confirm-player-count');
             const playerNameInputs = document.getElementById('player-name-inputs');
             const startGroupStageBtn = document.getElementById('start-group-stage');
-            
-            console.log('Setup elements found:', {
-                playerSetupPhase: !!playerSetupPhase,
-                playerCountInput: !!playerCountInput,
-                confirmPlayerCountBtn: !!confirmPlayerCountBtn,
-                playerNameInputs: !!playerNameInputs,
-                startGroupStageBtn: !!startGroupStageBtn
-            });
             
             const groupStagePhase = document.getElementById('group-stage-phase');
             const currentMatchDisplay = document.getElementById('current-match-display');
@@ -387,38 +369,23 @@
             const resetTournamentBtn = document.getElementById('reset-tournament-button');
 
             // Park bench button click handler
-            if (parkBenchButton) {
-                console.log('Park bench button found, adding click listener');
-                parkBenchButton.addEventListener('click', (e) => {
-                    console.log('Park bench button clicked!');
-                    e.preventDefault();
-                    
-                    console.log('Starting animation...');
-                    mainContentWrapper.classList.add('animate-spin-out');
-                    
-                    setTimeout(() => {
-                        console.log('Animation complete, switching content...');
-                        mainContentWrapper.style.display = 'none';
-                        tournamentSection.style.display = 'flex';
-                        tournamentSection.classList.add('animate-spin-in');
-                        
-                        // FORCE the correct initial state
-                        playerSetupPhase.classList.remove('hidden');
-                        playerSetupPhase.style.display = 'block';
-                        groupStagePhase.classList.add('hidden');
-                        groupStagePhase.style.display = 'none';
-                        knockoutStagePhase.classList.add('hidden');
-                        knockoutStagePhase.style.display = 'none';
-                        resetTournamentBtn.classList.add('hidden');
-                        
-                        console.log('Tournament initialized - should show player setup');
-                    }, 1200);
-                });
+            parkBenchButton.addEventListener('click', (e) => {
+                e.preventDefault();
                 
-                console.log('Click listener added to park bench button');
-            } else {
-                console.error('Park bench button not found!');
-            }
+                mainContentWrapper.classList.add('animate-spin-out');
+                
+                setTimeout(() => {
+                    mainContentWrapper.style.display = 'none';
+                    tournamentSection.style.display = 'flex';
+                    tournamentSection.classList.add('animate-spin-in');
+                    
+                    // Reset to initial state
+                    playerSetupPhase.classList.remove('hidden');
+                    groupStagePhase.classList.add('hidden');
+                    knockoutStagePhase.classList.add('hidden');
+                    resetTournamentBtn.classList.add('hidden');
+                }, 1200);
+            });
 
             // Setup player count and names
             confirmPlayerCountBtn.addEventListener('click', () => {
@@ -428,7 +395,6 @@
                     return;
                 }
                 
-                console.log('Creating inputs for', count, 'players');
                 playerNameInputs.innerHTML = '';
                 for (let i = 1; i <= count; i++) {
                     const div = document.createElement('div');
@@ -438,28 +404,19 @@
                         <input type="text" id="player-${i}-name" placeholder="Enter name for Player ${i}" class="tournament-input" value="Player ${i}">
                     `;
                     playerNameInputs.appendChild(div);
-                    console.log('Created input for player', i);
                 }
                 startGroupStageBtn.classList.remove('hidden');
-                console.log('Start button should now be visible');
             });
 
             // Start group stage
             startGroupStageBtn.addEventListener('click', () => {
-                console.log('Start Group Stage button clicked!');
-                
                 const count = parseInt(playerCountInput.value);
                 players = [];
                 
-                console.log('Starting group stage with', count, 'players');
-                
                 for (let i = 1; i <= count; i++) {
                     const nameInput = document.getElementById(`player-${i}-name`);
-                    console.log('Looking for input:', `player-${i}-name`, 'Found:', nameInput);
-                    
                     if (!nameInput) {
                         alert(`Error: Could not find input for player ${i}`);
-                        console.error(`Missing input for player ${i}`);
                         return;
                     }
                     
@@ -472,17 +429,14 @@
                         pointsAgainst: 0,
                         pointDiff: 0
                     });
-                    console.log('Added player:', name);
                 }
-
-                console.log('All players:', players);
 
                 if (players.length < 2) {
                     alert('Need at least 2 players to start tournament');
                     return;
                 }
 
-                // Generate all possible matches (round-robin) and shuffle them for random order
+                // Generate matches (round-robin)
                 matches = [];
                 for (let i = 0; i < players.length; i++) {
                     for (let j = i + 1; j < players.length; j++) {
@@ -494,40 +448,23 @@
                     }
                 }
 
-                // Shuffle matches array for random play order
+                // Shuffle matches
                 for (let i = matches.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [matches[i], matches[j]] = [matches[j], matches[i]];
                 }
 
-                console.log('Generated matches:', matches);
-
                 currentMatchIndex = 0;
                 
-                // Hide player setup and show group stage
-                console.log('Hiding player setup phase');
                 playerSetupPhase.classList.add('hidden');
-                playerSetupPhase.style.display = 'none';
-                
-                console.log('Showing group stage phase');
                 groupStagePhase.classList.remove('hidden');
-                groupStagePhase.style.display = 'block';
                 
-                console.log('Calling showCurrentMatch and updateStandings');
                 showCurrentMatch();
                 updateStandings();
-                
-                console.log('Group stage should now be visible');
             });
 
             // Show current match
             function showCurrentMatch() {
-                if (!matches || matches.length === 0) {
-                    currentMatchDisplay.textContent = 'No matches available. Please set up players first.';
-                    document.getElementById('score-input').classList.add('hidden');
-                    return;
-                }
-                
                 if (currentMatchIndex >= matches.length) {
                     currentMatchDisplay.textContent = 'All group stage matches completed!';
                     document.getElementById('score-input').classList.add('hidden');
@@ -536,18 +473,8 @@
                 }
 
                 const match = matches[currentMatchIndex];
-                if (!match || !players || players.length === 0) {
-                    currentMatchDisplay.textContent = 'Error: No players found.';
-                    return;
-                }
-                
                 const p1 = players[match.player1];
                 const p2 = players[match.player2];
-                
-                if (!p1 || !p2) {
-                    currentMatchDisplay.textContent = 'Error: Invalid match players.';
-                    return;
-                }
                 
                 currentMatchDisplay.textContent = `Match ${currentMatchIndex + 1} of ${matches.length}`;
                 player1Name.textContent = p1.name;
@@ -597,7 +524,6 @@
 
             // Update standings table
             function updateStandings() {
-                // Sort players by wins, then by point difference
                 const sortedPlayers = [...players].sort((a, b) => {
                     if (b.wins !== a.wins) return b.wins - a.wins;
                     return b.pointDiff - a.pointDiff;
@@ -620,8 +546,6 @@
 
             // Proceed to knockout stage
             finishGroupStageBtn.addEventListener('click', () => {
-                console.log('Finishing group stage and starting knockout');
-                
                 // Sort players for knockout seeding
                 const sortedPlayers = [...players].sort((a, b) => {
                     if (b.wins !== a.wins) return b.wins - a.wins;
@@ -630,93 +554,180 @@
 
                 // Take top 4 players for knockout
                 const knockoutPlayers = sortedPlayers.slice(0, 4);
-                console.log('Top 4 players for knockout:', knockoutPlayers);
                 
-                // Create knockout matches - only the initial semifinals
+                // Create initial knockout matches (semifinals only)
                 knockoutMatches = [
                     { player1: knockoutPlayers[0], player2: knockoutPlayers[3], stage: 'semifinal', completed: false },
                     { player1: knockoutPlayers[1], player2: knockoutPlayers[2], stage: 'semifinal', completed: false }
                 ];
 
-                console.log('Initial knockout matches:', knockoutMatches);
-
                 currentKnockoutIndex = 0;
                 knockoutStage = 'semifinals';
                 
-                // Hide group stage and show knockout stage
                 groupStagePhase.classList.add('hidden');
-                groupStagePhase.style.display = 'none';
                 knockoutStagePhase.classList.remove('hidden');
-                knockoutStagePhase.style.display = 'block';
                 
-                console.log('Showing knockout stage, calling showCurrentKnockoutMatch');
                 showCurrentKnockoutMatch();
                 updateKnockoutBracket();
             });
 
-            // Show current knockout match - FIXED VERSION
+            // Show current knockout match
             function showCurrentKnockoutMatch() {
-                console.log('showCurrentKnockoutMatch called - stage:', knockoutStage, 'index:', currentKnockoutIndex);
-                console.log('Current knockout matches:', knockoutMatches);
-                
-                // Find the next incomplete match in the current stage
+                // Find next incomplete match
                 let nextMatch = null;
                 let nextIndex = -1;
                 
-                if (knockoutStage === 'semifinals') {
-                    // Look for incomplete semifinal matches
-                    for (let i = 0; i < knockoutMatches.length; i++) {
-                        if (knockoutMatches[i].stage === 'semifinal' && !knockoutMatches[i].completed) {
-                            nextMatch = knockoutMatches[i];
-                            nextIndex = i;
-                            break;
-                        }
+                for (let i = 0; i < knockoutMatches.length; i++) {
+                    if (!knockoutMatches[i].completed) {
+                        nextMatch = knockoutMatches[i];
+                        nextIndex = i;
+                        break;
                     }
-                    
-                    // If no more semifinal matches, create third place and final matches
-                    if (!nextMatch) {
-                        console.log('All semifinals completed, creating third place and final matches');
-                        const semifinalMatches = knockoutMatches.filter(m => m.stage === 'semifinal' && m.completed);
+                }
+                
+                // If no incomplete matches, check if we need to create more matches
+                if (!nextMatch) {
+                    if (knockoutStage === 'semifinals') {
+                        // Create third place and final matches
+                        const completedSemifinals = knockoutMatches.filter(m => m.stage === 'semifinal' && m.completed);
                         
-                        if (semifinalMatches.length === 2) {
-                            // Create third place match
+                        if (completedSemifinals.length === 2) {
+                            // Add third place match
                             knockoutMatches.push({
-                                player1: semifinalMatches[0].loser,
-                                player2: semifinalMatches[1].loser,
+                                player1: completedSemifinals[0].loser,
+                                player2: completedSemifinals[1].loser,
                                 stage: 'third-place',
                                 completed: false
                             });
                             
-                            // Create final match
+                            // Add final match
                             knockoutMatches.push({
-                                player1: semifinalMatches[0].winner,
-                                player2: semifinalMatches[1].winner,
+                                player1: completedSemifinals[0].winner,
+                                player2: completedSemifinals[1].winner,
                                 stage: 'final',
                                 completed: false
                             });
                             
                             knockoutStage = 'third-place';
                             updateKnockoutBracket();
-                            showCurrentKnockoutMatch(); // Recursive call to show third place match
+                            showCurrentKnockoutMatch();
                             return;
                         }
-                    }
-                } else if (knockoutStage === 'third-place') {
-                    // Look for incomplete third place match
-                    for (let i = 0; i < knockoutMatches.length; i++) {
-                        if (knockoutMatches[i].stage === 'third-place' && !knockoutMatches[i].completed) {
-                            nextMatch = knockoutMatches[i];
-                            nextIndex = i;
-                            break;
-                        }
-                    }
-                    
-                    // If third place is done, move to final
-                    if (!nextMatch) {
+                    } else if (knockoutStage === 'third-place') {
                         knockoutStage = 'final';
-                        showCurrentKnockoutMatch(); // Recursive call to show final match
+                        showCurrentKnockoutMatch();
+                        return;
+                    } else {
+                        // Tournament complete
+                        showFinalResults();
                         return;
                     }
-                } else if (knockoutStage === 'final') {
-                    // Look for incomplete final match
-                    for (let i = 0; i < knockoutMatches.length;
+                }
+                
+                if (!nextMatch) return;
+                
+                currentKnockoutIndex = nextIndex;
+                
+                let stageText = '';
+                if (nextMatch.stage === 'semifinal') stageText = 'Semi-final';
+                else if (nextMatch.stage === 'third-place') stageText = '3rd Place Match';
+                else if (nextMatch.stage === 'final') stageText = 'FINAL';
+                
+                knockoutMatchDisplay.textContent = stageText;
+                koPlayer1Name.textContent = nextMatch.player1.name;
+                koPlayer2Name.textContent = nextMatch.player2.name;
+                koPlayer1Score.value = 0;
+                koPlayer2Score.value = 0;
+            }
+
+            // Submit knockout score
+            submitKoScoreBtn.addEventListener('click', () => {
+                const score1 = parseInt(koPlayer1Score.value) || 0;
+                const score2 = parseInt(koPlayer2Score.value) || 0;
+                
+                if (score1 === score2) {
+                    alert('Scores cannot be tied in knockout stage. Please enter different scores.');
+                    return;
+                }
+
+                const match = knockoutMatches[currentKnockoutIndex];
+                
+                if (score1 > score2) {
+                    match.winner = match.player1;
+                    match.loser = match.player2;
+                } else {
+                    match.winner = match.player2;
+                    match.loser = match.player1;
+                }
+                
+                match.score1 = score1;
+                match.score2 = score2;
+                match.completed = true;
+                
+                updateKnockoutBracket();
+                showCurrentKnockoutMatch();
+            });
+
+            // Update knockout bracket display
+            function updateKnockoutBracket() {
+                const semifinalDiv = document.getElementById('semifinal-matches');
+                const thirdPlaceDiv = document.getElementById('third-place-match');
+                const finalDiv = document.getElementById('final-match');
+                
+                semifinalDiv.innerHTML = '';
+                thirdPlaceDiv.innerHTML = '';
+                finalDiv.innerHTML = '';
+                
+                knockoutMatches.forEach(match => {
+                    const matchDiv = document.createElement('div');
+                    matchDiv.className = `match-card ${match.completed ? 'winner' : ''}`;
+                    
+                    if (match.completed) {
+                        matchDiv.innerHTML = `
+                            <div class="text-center">
+                                <div class="font-bold">${match.winner.name}</div>
+                                <div class="text-sm">${match.score1} - ${match.score2}</div>
+                                <div class="text-xs opacity-75">vs ${match.loser.name}</div>
+                            </div>
+                        `;
+                    } else {
+                        matchDiv.innerHTML = `
+                            <div class="text-center">
+                                <div>${match.player1.name}</div>
+                                <div class="text-sm">vs</div>
+                                <div>${match.player2.name}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    if (match.stage === 'semifinal') {
+                        semifinalDiv.appendChild(matchDiv);
+                    } else if (match.stage === 'third-place') {
+                        thirdPlaceDiv.appendChild(matchDiv);
+                    } else if (match.stage === 'final') {
+                        finalDiv.appendChild(matchDiv);
+                    }
+                });
+            }
+
+            // Show final results
+            function showFinalResults() {
+                const finalMatch = knockoutMatches.find(m => m.stage === 'final');
+                const thirdPlaceMatch = knockoutMatches.find(m => m.stage === 'third-place');
+                
+                if (finalMatch && finalMatch.completed) {
+                    finalWinnerDisplay.innerHTML = `🏆 Tournament Champion: ${finalMatch.winner.name} 🏆`;
+                    finalWinnerDisplay.classList.remove('hidden');
+                    
+                    const winnersDiv = document.getElementById('winners-display');
+                    winnersDiv.innerHTML = `
+                        <div class="text-center space-y-2">
+                            <div class="text-yellow-400 font-bold">🥇 1st: ${finalMatch.winner.name}</div>
+                            <div class="text-gray-300 font-bold">🥈 2nd: ${finalMatch.loser.name}</div>
+                            ${thirdPlaceMatch && thirdPlaceMatch.completed ? `<div class="text-orange-400 font-bold">🥉 3rd: ${thirdPlaceMatch.winner.name}</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('knockout-score-input').classList.add('hidden');
+                resetTournamentBtn
