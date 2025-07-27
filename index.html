@@ -327,7 +327,11 @@ const<!DOCTYPE html>
     </div>
 
     <script>
+        console.log('JavaScript is loading...'); // Debug log
+        
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded - starting initialization'); // Debug log
+            
             // Tournament state
             let players = [];
             let matches = [];
@@ -342,11 +346,25 @@ const<!DOCTYPE html>
             const parkBenchButton = document.getElementById('park-bench-button');
             const tournamentSection = document.getElementById('tournament-section');
             
+            console.log('Main elements found:', {
+                mainContentWrapper: !!mainContentWrapper,
+                parkBenchButton: !!parkBenchButton,
+                tournamentSection: !!tournamentSection
+            });
+            
             const playerSetupPhase = document.getElementById('player-setup-phase');
             const playerCountInput = document.getElementById('player-count');
             const confirmPlayerCountBtn = document.getElementById('confirm-player-count');
             const playerNameInputs = document.getElementById('player-name-inputs');
             const startGroupStageBtn = document.getElementById('start-group-stage');
+            
+            console.log('Setup elements found:', {
+                playerSetupPhase: !!playerSetupPhase,
+                playerCountInput: !!playerCountInput,
+                confirmPlayerCountBtn: !!confirmPlayerCountBtn,
+                playerNameInputs: !!playerNameInputs,
+                startGroupStageBtn: !!startGroupStageBtn
+            });
             
             const groupStagePhase = document.getElementById('group-stage-phase');
             const currentMatchDisplay = document.getElementById('current-match-display');
@@ -370,26 +388,40 @@ const<!DOCTYPE html>
             
             const resetTournamentBtn = document.getElementById('reset-tournament-button');
 
-            // Initialize tournament
-            parkBenchButton.addEventListener('click', () => {
-                mainContentWrapper.classList.add('animate-spin-out');
-                setTimeout(() => {
-                    mainContentWrapper.style.display = 'none';
-                    tournamentSection.style.display = 'flex';
-                    tournamentSection.classList.add('animate-spin-in');
+            // Test park bench button immediately
+            if (parkBenchButton) {
+                console.log('Park bench button found, adding click listener');
+                parkBenchButton.addEventListener('click', (e) => {
+                    console.log('Park bench button clicked!');
+                    e.preventDefault(); // Prevent any default behavior
                     
-                    // FORCE the correct initial state
-                    playerSetupPhase.classList.remove('hidden');
-                    playerSetupPhase.style.display = 'block';
-                    groupStagePhase.classList.add('hidden');
-                    groupStagePhase.style.display = 'none';
-                    knockoutStagePhase.classList.add('hidden');
-                    knockoutStagePhase.style.display = 'none';
-                    resetTournamentBtn.classList.add('hidden');
+                    console.log('Starting animation...');
+                    mainContentWrapper.classList.add('animate-spin-out');
                     
-                    console.log('Tournament initialized - should show player setup');
-                }, 1200);
-            });
+                    setTimeout(() => {
+                        console.log('Animation complete, switching content...');
+                        mainContentWrapper.style.display = 'none';
+                        tournamentSection.style.display = 'flex';
+                        tournamentSection.classList.add('animate-spin-in');
+                        
+                        // FORCE the correct initial state
+                        playerSetupPhase.classList.remove('hidden');
+                        playerSetupPhase.style.display = 'block';
+                        groupStagePhase.classList.add('hidden');
+                        groupStagePhase.style.display = 'none';
+                        knockoutStagePhase.classList.add('hidden');
+                        knockoutStagePhase.style.display = 'none';
+                        resetTournamentBtn.classList.add('hidden');
+                        
+                        console.log('Tournament initialized - should show player setup');
+                    }, 1200);
+                });
+                
+                // Test click immediately
+                console.log('Click listener added to park bench button');
+            } else {
+                console.error('Park bench button not found!');
+            }
 
             // Setup player count and names
             confirmPlayerCountBtn.addEventListener('click', () => {
