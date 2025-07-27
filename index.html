@@ -8,41 +8,97 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Your custom CSS file -->
+    <link rel="stylesheet" href="css/style.css">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            /* Dark background for the "dark place" */
-            background-color: #1a202c; /* A deep dark gray */
+            background-color: #1a202c; /* Deep dark gray for the "dark place" */
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh; /* Full viewport height */
             margin: 0;
-            overflow: hidden; /* Prevent scrolling if content slightly overflows */
+            overflow: hidden; /* Prevent scrolling during animation */
+            perspective: 1000px; /* For 3D rotation effect */
+        }
+
+        /* Basic styling for the main content and tournament sections */
+        .content-section {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backface-visibility: hidden; /* Prevents flickering during 3D transform */
+            transition: transform 0.5s, opacity 0.5s; /* Smooth transition for hiding/showing */
+        }
+
+        /* Hide the tournament section initially */
+        #tournament-section {
+            display: none;
+            position: absolute; /* Position over the main content for seamless transition */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transform: rotateY(180deg); /* Start rotated for the spin-in effect */
+            opacity: 0;
         }
     </style>
 </head>
 <body class="text-white">
-    <div class="flex flex-col items-center justify-center p-4 text-center">
+    <!-- Main content wrapper for the welcome page -->
+    <div id="main-content-wrapper" class="content-section">
         <!-- The welcome message -->
-        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-wider">
+        <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-wider text-white">
             Dobrodošli u Kic
         </h1>
 
-        <!-- Park Bench Image - Moved to be between the two text elements -->
-        <!-- Using placehold.co for a simple, dark bench image.
-             The dimensions are chosen to be somewhat realistic for a bench. -->
-        <img
-            src="https://placehold.co/300x100/333333/ffffff?text=Park+Bench"
-            alt="A simple park bench"
-            class="w-full max-w-xs md:max-w-md lg:max-w-lg h-auto rounded-lg shadow-lg my-8"
-            onerror="this.onerror=null;this.src='https://placehold.co/300x100/333333/ffffff?text=Bench';"
-        >
+        <!-- Park Bench Button -->
+        <!-- The image is inside a button to make it clickable -->
+        <button id="park-bench-button" class="mt-8 mb-4 p-0 bg-transparent border-none cursor-pointer focus:outline-none transform transition-transform duration-300 hover:scale-105">
+            <img
+                src="https://placehold.co/300x100/333333/ffffff?text=Park+Bench"
+                alt="A simple park bench, click to enter tournament"
+                class="w-full max-w-xs md:max-w-md lg:max-w-lg h-auto rounded-lg shadow-lg"
+                onerror="this.onerror=null;this.src='https://placehold.co/300x100/333333/ffffff?text=Bench';"
+            >
+        </button>
 
-        <!-- The descriptive text - corrected "mesto" to "mjesto" -->
+        <!-- The descriptive text -->
         <p class="mt-4 text-lg md:text-xl text-gray-400">
             Vase mirno mjesto na internetu.
         </p>
     </div>
+
+    <!-- Table Tennis Tournament Section (initially hidden) -->
+    <div id="tournament-section" class="content-section bg-gray-900 text-white p-6 rounded-lg shadow-xl">
+        <h2 class="text-4xl md:text-5xl font-bold mb-6 text-yellow-400">
+            Kic Table Tennis Tournament
+        </h2>
+        <div id="tournament-status" class="text-xl mb-4 text-gray-300">
+            Tournament not started.
+        </div>
+        <ul id="player-list" class="list-disc list-inside text-lg text-gray-200 mb-6">
+            <!-- Player list will be populated by JavaScript -->
+        </ul>
+        <button id="start-match-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+            Simulate Next Match
+        </button>
+        <div id="match-results" class="mt-6 text-lg text-green-400 font-semibold">
+            <!-- Match results will be displayed here -->
+        </div>
+        <button id="reset-tournament-button" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105 hidden">
+            Reset Tournament
+        </button>
+    </div>
+
+    <!-- Your custom JavaScript file -->
+    <!-- The 'defer' attribute ensures the HTML is parsed before the script runs -->
+    <script src="js/script.js" defer></script>
 </body>
 </html>
