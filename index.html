@@ -48,6 +48,20 @@
             transform: rotateY(180deg); /* Start rotated for the spin-in effect */
             opacity: 0;
         }
+
+        /* Specific styles for the tournament table */
+        #standings-table th, #standings-table td {
+            padding: 0.5rem;
+            border: 1px solid #4a5568; /* Tailwind gray-600 */
+            text-align: center;
+        }
+        #standings-table th {
+            background-color: #2d3748; /* Tailwind gray-800 */
+            font-weight: bold;
+        }
+        #standings-table tr:nth-child(even) {
+            background-color: #2a3340; /* Slightly lighter for readability */
+        }
     </style>
 </head>
 <body class="text-white">
@@ -59,7 +73,6 @@
         </h1>
 
         <!-- Park Bench Button -->
-        <!-- The image is inside a button to make it clickable -->
         <button id="park-bench-button" class="mt-8 mb-4 p-0 bg-transparent border-none cursor-pointer focus:outline-none transform transition-transform duration-300 hover:scale-105">
             <img
                 src="https://placehold.co/300x100/333333/ffffff?text=Park+Bench"
@@ -80,25 +93,99 @@
         <h2 class="text-4xl md:text-5xl font-bold mb-6 text-yellow-400">
             Kic Table Tennis Tournament
         </h2>
-        <div id="tournament-status" class="text-xl mb-4 text-gray-300">
-            Tournament not started.
+
+        <!-- Player Setup Phase -->
+        <div id="player-setup-phase" class="w-full max-w-md hidden">
+            <label for="player-count" class="block text-lg font-medium mb-2">How many players (2-8)?</label>
+            <input type="number" id="player-count" min="2" max="8" value="4" class="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white mb-4">
+            <button id="confirm-player-count" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                Confirm Players
+            </button>
+
+            <div id="player-name-inputs" class="mt-6">
+                <!-- Player name input fields will be generated here -->
+            </div>
+            <button id="start-group-stage" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 mt-4 hidden">
+                Start Group Stage
+            </button>
         </div>
-        <ul id="player-list" class="list-disc list-inside text-lg text-gray-200 mb-6">
-            <!-- Player list will be populated by JavaScript -->
-        </ul>
-        <button id="start-match-button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
-            Simulate Next Match
-        </button>
-        <div id="match-results" class="mt-6 text-lg text-green-400 font-semibold">
-            <!-- Match results will be displayed here -->
+
+        <!-- Group Stage Phase -->
+        <div id="group-stage-phase" class="w-full max-w-2xl hidden">
+            <h3 class="text-3xl font-semibold mb-4 text-center">Group Stage</h3>
+            <div id="current-match-display" class="text-2xl font-bold mb-4 text-center"></div>
+
+            <div id="score-input" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
+                <div class="flex flex-col items-center">
+                    <span id="player1-name" class="text-xl font-semibold"></span>
+                    <input type="number" id="player1-score" min="0" value="0" class="w-20 p-2 rounded bg-gray-700 border border-gray-600 text-white text-center mt-2">
+                </div>
+                <span class="text-3xl font-bold mx-4">VS</span>
+                <div class="flex flex-col items-center">
+                    <span id="player2-name" class="text-xl font-semibold"></span>
+                    <input type="number" id="player2-score" min="0" value="0" class="w-20 p-2 rounded bg-gray-700 border border-gray-600 text-white text-center mt-2">
+                </div>
+                <button id="submit-score" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 mt-4 md:mt-0">
+                    Submit Result
+                </button>
+            </div>
+
+            <h4 class="text-2xl font-semibold mb-3 text-center">Standings</h4>
+            <div class="overflow-x-auto w-full">
+                <table id="standings-table" class="w-full text-lg rounded-lg overflow-hidden">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Wins</th>
+                            <th>Losses</th>
+                            <th>Points For</th>
+                            <th>Points Against</th>
+                            <th>Point Diff</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Standings will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+            <button id="finish-group-stage" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 mt-6 hidden">
+                Proceed to Knockout Stage
+            </button>
         </div>
-        <button id="reset-tournament-button" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full shadow-md transition-all duration-300 transform hover:scale-105 hidden">
-            Reset Tournament
+
+        <!-- Knockout Stage Phase -->
+        <div id="knockout-stage-phase" class="w-full max-w-2xl hidden">
+            <h3 class="text-3xl font-semibold mb-4 text-center">Knockout Stage</h3>
+            <div id="knockout-match-display" class="text-2xl font-bold mb-4 text-center"></div>
+
+            <div id="knockout-score-input" class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 mb-6">
+                <div class="flex flex-col items-center">
+                    <span id="ko-player1-name" class="text-xl font-semibold"></span>
+                    <input type="number" id="ko-player1-score" min="0" value="0" class="w-20 p-2 rounded bg-gray-700 border border-gray-600 text-white text-center mt-2">
+                </div>
+                <span class="text-3xl font-bold mx-4">VS</span>
+                <div class="flex flex-col items-center">
+                    <span id="ko-player2-name" class="text-xl font-semibold"></span>
+                    <input type="number" id="ko-player2-score" min="0" value="0" class="w-20 p-2 rounded bg-gray-700 border border-gray-600 text-white text-center mt-2">
+                </div>
+                <button id="submit-ko-score" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 mt-4 md:mt-0">
+                    Submit Result
+                </button>
+            </div>
+
+            <div id="knockout-bracket" class="mt-6 w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Knockout matches will be displayed here -->
+            </div>
+            <div id="final-winner-display" class="text-4xl font-bold text-center mt-8 text-green-500 hidden"></div>
+        </div>
+
+        <button id="reset-tournament-button" class="mt-8 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full shadow-md transition-all duration-300 transform hover:scale-105 hidden">
+            Start New Tournament
         </button>
     </div>
 
-    <!-- Your custom JavaScript file (now in the root directory) -->
-    <!-- The 'defer' attribute ensures the HTML is parsed before the script runs -->
+    <!-- Your custom JavaScript file -->
     <script src="script.js" defer></script>
 </body>
 </html>
