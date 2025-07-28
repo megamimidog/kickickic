@@ -4,58 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dobrodošli u Kic</title>
-    <!-- Tailwind CSS CDN for easy styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #fefce8; /* Pale yellow background */
-            color: #000000; /* Black text */
+            background-color: #fefce8;
+            color: #000000;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Full viewport height */
+            min-height: 100vh;
             margin: 0;
-            overflow: hidden; /* Prevent scrolling during animation */
-            perspective: 1000px; /* For 3D rotation effect */
+            perspective: 1000px;
         }
 
-        /* Keyframe animations for the spinning transition */
         @keyframes spin-out {
-            0% {
-                transform: rotateY(0deg);
-                opacity: 1;
-            }
-            100% {
-                transform: rotateY(-180deg); /* Spins out to the left */
-                opacity: 0;
-            }
+            0% { transform: rotateY(0deg); opacity: 1; }
+            100% { transform: rotateY(-180deg); opacity: 0; }
         }
 
         @keyframes spin-in {
-            0% {
-                transform: rotateY(180deg); /* Spins in from the right */
-                opacity: 0;
-            }
-            100% {
-                transform: rotateY(0deg);
-                opacity: 1;
-            }
+            0% { transform: rotateY(180deg); opacity: 0; }
+            100% { transform: rotateY(0deg); opacity: 1; }
         }
 
-        /* Classes to apply the animations */
-        .animate-spin-out {
-            animation: spin-out 1.2s forwards; /* 1.2 seconds duration */
-        }
+        .animate-spin-out { animation: spin-out 1.2s forwards; }
+        .animate-spin-in { animation: spin-in 1.2s forwards; }
 
-        .animate-spin-in {
-            animation: spin-in 1.2s forwards; /* 1.2 seconds duration */
-        }
-
-        /* Basic styling for the main content and tournament sections */
         .content-section {
             width: 100%;
             height: 100%;
@@ -63,60 +39,45 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            backface-visibility: hidden; /* Prevents flickering during 3D transform */
-            transition: transform 0.5s, opacity 0.5s; /* Smooth transition for hiding/showing */
+            backface-visibility: hidden;
             transform-style: preserve-3d;
         }
 
-        /* Hide the tournament section initially */
         #tournament-section {
             display: none;
-            position: absolute; /* Position over the main content for seamless transition */
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            transform: rotateY(180deg); /* Start rotated for the spin-in effect */
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            transform: rotateY(180deg);
             opacity: 0;
             overflow-y: auto;
             max-height: 100vh;
-            background-color: #fefce8; /* Pale yellow background */
+            background-color: #fefce8;
             padding: 1rem;
         }
 
-        /* Specific styles for the tournament table */
-        #standings-table th, #standings-table td {
-            padding: 0.75rem;
-            border: 2px solid #000000; /* Black borders */
-            text-align: center;
-            background-color: #ffffff; /* White background */
-            color: #000000; /* Black text */
-        }
-        #standings-table th {
-            background-color: #f3f4f6; /* Light gray header */
+        #park-bench-button {
+            width: 300px;
+            height: 100px;
+            background: linear-gradient(145deg, #8B4513, #A0522D);
+            border: 3px solid #654321;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
             font-weight: bold;
-            color: #000000;
-        }
-        #standings-table tr:nth-child(even) td {
-            background-color: #f9fafb; /* Very light gray for alternating rows */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
         }
 
-        .match-card {
-            background: #ffffff; /* White background */
-            border: 2px solid #000000; /* Black border */
-            color: #000000; /* Black text */
-            border-radius: 12px;
-            padding: 1rem;
-            margin: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        #park-bench-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: linear-gradient(145deg, #A0522D, #CD853F);
         }
 
-        .winner {
-            background: #dcfce7; /* Light green background for winners */
-            border-color: #16a34a; /* Green border */
-        }
-
-        /* Mobile-optimized styling */
         .tournament-input {
             background-color: #ffffff;
             border: 2px solid #000000;
@@ -126,12 +87,6 @@
             width: 100%;
             text-align: center;
             font-size: 1rem;
-        }
-
-        .tournament-input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .tournament-button {
@@ -148,124 +103,55 @@
             margin: 0.5rem 0;
         }
 
-        .tournament-button:hover {
-            background-color: #2563eb;
-            transform: translateY(-2px);
-        }
+        .tournament-button:hover { background-color: #2563eb; }
+        .tournament-button.green { background-color: #16a34a; }
+        .tournament-button.green:hover { background-color: #15803d; }
+        .tournament-button.yellow { background-color: #eab308; }
+        .tournament-button.red { background-color: #dc2626; }
+        .tournament-button.purple { background-color: #9333ea; }
 
-        .tournament-button.green {
-            background-color: #16a34a;
-        }
-
-        .tournament-button.green:hover {
-            background-color: #15803d;
-        }
-
-        .tournament-button.yellow {
-            background-color: #eab308;
-        }
-
-        .tournament-button.yellow:hover {
-            background-color: #ca8a04;
-        }
-
-        .tournament-button.purple {
-            background-color: #9333ea;
-        }
-
-        .tournament-button.purple:hover {
-            background-color: #7c3aed;
-        }
-
-        .tournament-button.red {
-            background-color: #dc2626;
-        }
-
-        .tournament-button.red:hover {
-            background-color: #b91c1c;
-        }
-
-        /* Enhanced park bench button styling */
-        #park-bench-button {
-            display: block;
-            width: 300px;
-            height: 100px;
-            background: linear-gradient(145deg, #8B4513, #A0522D);
-            border: 3px solid #654321;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
-
-        #park-bench-button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-            background: linear-gradient(145deg, #A0522D, #CD853F);
-        }
-
-        #park-bench-button:active {
-            transform: translateY(-1px) scale(1.02);
-        }
-
-        #park-bench-button::before {
-            content: "🪑 Enter Tournament";
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        #standings-table th, #standings-table td {
+            padding: 0.75rem;
+            border: 2px solid #000000;
+            text-align: center;
+            background-color: #ffffff;
+            color: #000000;
         }
     </style>
 </head>
-<body class="text-white">
-    <!-- Main content wrapper for the welcome page -->
+<body>
+    <!-- Main welcome screen -->
     <div id="main-content-wrapper" class="content-section">
-        <!-- The welcome message -->
         <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-wider text-black">
             Dobrodošli u Kic
         </h1>
-
-        <!-- Park Bench Button -->
-        <button id="park-bench-button" class="mt-8 mb-4 focus:outline-none">
-            <!-- Button content is in CSS ::before pseudo-element -->
+        
+        <button id="park-bench-button" class="mt-8 mb-4" onclick="startTournament()">
+            🪑 Enter Tournament
         </button>
-
-        <!-- The descriptive text -->
+        
         <p class="mt-4 text-lg md:text-xl text-gray-800">
             Vase mirno mjesto na internetu.
         </p>
     </div>
 
-    <!-- Table Tennis Tournament Section (initially hidden) -->
+    <!-- Tournament section -->
     <div id="tournament-section" class="content-section text-black p-6 rounded-lg">
         <h2 class="text-3xl md:text-4xl font-bold mb-6 text-black text-center">
             Kic Table Tennis Tournament
         </h2>
 
-        <!-- Player Setup Phase -->
+        <!-- Player Setup -->
         <div id="player-setup-phase" class="w-full max-w-md mx-auto">
             <label for="player-count" class="block text-lg font-medium mb-2 text-center">How many players (2-8)?</label>
             <input type="number" id="player-count" min="2" max="8" value="4" class="tournament-input mb-4">
-            <button id="confirm-player-count" class="tournament-button green">
-                Confirm Players
-            </button>
+            <button onclick="confirmPlayers()" class="tournament-button green">Confirm Players</button>
 
-            <div id="player-name-inputs" class="mt-6">
-                <!-- Player name input fields will be generated here -->
-            </div>
-            <button id="start-group-stage" class="tournament-button hidden">
-                Start Group Stage
-            </button>
+            <div id="player-name-inputs" class="mt-6"></div>
+            <button id="start-group-stage" onclick="startGroupStage()" class="tournament-button hidden">Start Group Stage</button>
         </div>
 
-        <!-- Group Stage Phase -->
+        <!-- Group Stage -->
         <div id="group-stage-phase" class="w-full max-w-4xl mx-auto hidden">
             <h3 class="text-2xl md:text-3xl font-semibold mb-4 text-center">Group Stage</h3>
             <div id="current-match-display" class="text-xl md:text-2xl font-bold mb-4 text-center"></div>
@@ -282,9 +168,7 @@
                         <input type="number" id="player2-score" min="0" value="0" class="tournament-input w-20">
                     </div>
                 </div>
-                <button id="submit-score" class="tournament-button purple">
-                    Submit Result
-                </button>
+                <button onclick="submitScore()" class="tournament-button purple">Submit Result</button>
             </div>
 
             <h4 class="text-xl md:text-2xl font-semibold mb-3 text-center">Standings</h4>
@@ -292,26 +176,19 @@
                 <table id="standings-table" class="w-full text-sm md:text-base rounded-lg overflow-hidden mx-auto">
                     <thead>
                         <tr>
-                            <th>Rank</th>
-                            <th>Player</th>
-                            <th>Wins</th>
-                            <th>Losses</th>
-                            <th>Points For</th>
-                            <th>Points Against</th>
-                            <th>Point Diff</th>
+                            <th>Rank</th><th>Player</th><th>Wins</th><th>Losses</th>
+                            <th>Points For</th><th>Points Against</th><th>Point Diff</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Standings will be populated here -->
-                    </tbody>
+                    <tbody></tbody>
                 </table>
             </div>
-            <button id="finish-group-stage" class="tournament-button yellow hidden">
+            <button id="finish-group-stage" onclick="startKnockout()" class="tournament-button yellow hidden">
                 Proceed to Knockout Stage
             </button>
         </div>
 
-        <!-- Knockout Stage Phase -->
+        <!-- Knockout Stage -->
         <div id="knockout-stage-phase" class="w-full max-w-4xl mx-auto hidden">
             <h3 class="text-2xl md:text-3xl font-semibold mb-4 text-center">Knockout Stage</h3>
             <div id="knockout-match-display" class="text-xl md:text-2xl font-bold mb-4 text-center"></div>
@@ -328,340 +205,120 @@
                         <input type="number" id="ko-player2-score" min="0" value="0" class="tournament-input w-20">
                     </div>
                 </div>
-                <button id="submit-ko-score" class="tournament-button purple">
-                    Submit Result
-                </button>
+                <button onclick="submitKnockoutScore()" class="tournament-button purple">Submit Result</button>
             </div>
 
-            <div id="knockout-bracket" class="mt-6 w-full">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <h5 class="text-lg md:text-xl font-bold text-center mb-4 text-blue-600">Semi-finals</h5>
-                        <div id="semifinal-matches"></div>
-                    </div>
-                    <div>
-                        <h5 class="text-lg md:text-xl font-bold text-center mb-4 text-orange-600">3rd Place</h5>
-                        <div id="third-place-match"></div>
-                        <h5 class="text-lg md:text-xl font-bold text-center mb-4 text-yellow-600 mt-6">Final</h5>
-                        <div id="final-match"></div>
-                    </div>
-                    <div>
-                        <h5 class="text-lg md:text-xl font-bold text-center mb-4 text-green-600">Winners</h5>
-                        <div id="winners-display"></div>
-                    </div>
-                </div>
+            <div id="knockout-results" class="mt-6 text-center">
+                <div id="winners-display" class="text-2xl font-bold"></div>
             </div>
-            <div id="final-winner-display" class="text-2xl md:text-4xl font-bold text-center mt-8 text-green-600 hidden"></div>
         </div>
 
-        <button id="reset-tournament-button" class="tournament-button red mt-8 hidden">
+        <button onclick="resetTournament()" class="tournament-button red mt-8 hidden" id="reset-button">
             Start New Tournament
         </button>
     </div>
 
     <script>
-        // Tournament state
+        // Global tournament state
         let players = [];
         let matches = [];
         let currentMatchIndex = 0;
         let knockoutMatches = [];
         let currentKnockoutIndex = 0;
         let knockoutStage = 'semifinals';
-        let finalResults = {};
 
-        // Initialize when DOM is ready
-        function initializeTournament() {
-            console.log('Initializing tournament...');
+        // Simple function to start tournament - using onclick for reliability
+        function startTournament() {
+            console.log('Starting tournament...');
             
-            // Get DOM elements
-            const mainContentWrapper = document.getElementById('main-content-wrapper');
-            const parkBenchButton = document.getElementById('park-bench-button');
+            const mainWrapper = document.getElementById('main-content-wrapper');
             const tournamentSection = document.getElementById('tournament-section');
             
-            if (!mainContentWrapper || !parkBenchButton || !tournamentSection) {
-                console.error('Required elements not found:', {
-                    mainContentWrapper: !!mainContentWrapper,
-                    parkBenchButton: !!parkBenchButton,
-                    tournamentSection: !!tournamentSection
-                });
-                return;
-            }
-
-            // Setup park bench button with multiple event methods for reliability
-            function startTournament(e) {
-                console.log('Starting tournament transition...');
-                if (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                }
-                
-                // Add animation class
-                mainContentWrapper.classList.add('animate-spin-out');
-                
-                // Switch content after animation
-                setTimeout(() => {
-                    mainContentWrapper.style.display = 'none';
-                    tournamentSection.style.display = 'flex';
-                    tournamentSection.classList.add('animate-spin-in');
-                    
-                    // Ensure correct initial state
-                    resetToPlayerSetup();
-                    console.log('Tournament started successfully');
-                }, 1200);
-            }
-
-            // Add multiple event listeners for maximum compatibility
-            parkBenchButton.addEventListener('click', startTournament);
-            parkBenchButton.addEventListener('touchstart', startTournament);
-            parkBenchButton.addEventListener('pointerdown', startTournament);
-
-            // Setup other event handlers
-            setupPlayerHandlers();
-            setupGroupStageHandlers();
-            setupKnockoutHandlers();
-            setupResetHandler();
-
-            console.log('Tournament initialization complete');
+            mainWrapper.classList.add('animate-spin-out');
+            
+            setTimeout(() => {
+                mainWrapper.style.display = 'none';
+                tournamentSection.style.display = 'flex';
+                tournamentSection.classList.add('animate-spin-in');
+                resetToPlayerSetup();
+            }, 1200);
         }
 
         function resetToPlayerSetup() {
-            const playerSetupPhase = document.getElementById('player-setup-phase');
-            const groupStagePhase = document.getElementById('group-stage-phase');
-            const knockoutStagePhase = document.getElementById('knockout-stage-phase');
-            const resetBtn = document.getElementById('reset-tournament-button');
-
-            if (playerSetupPhase) {
-                playerSetupPhase.classList.remove('hidden');
-                playerSetupPhase.style.display = 'block';
-            }
-            if (groupStagePhase) {
-                groupStagePhase.classList.add('hidden');
-                groupStagePhase.style.display = 'none';
-            }
-            if (knockoutStagePhase) {
-                knockoutStagePhase.classList.add('hidden');
-                knockoutStagePhase.style.display = 'none';
-            }
-            if (resetBtn) {
-                resetBtn.classList.add('hidden');
-            }
+            document.getElementById('player-setup-phase').classList.remove('hidden');
+            document.getElementById('group-stage-phase').classList.add('hidden');
+            document.getElementById('knockout-stage-phase').classList.add('hidden');
+            document.getElementById('reset-button').classList.add('hidden');
         }
 
-        function setupPlayerHandlers() {
-            const confirmPlayerCountBtn = document.getElementById('confirm-player-count');
-            const startGroupStageBtn = document.getElementById('start-group-stage');
-            const playerCountInput = document.getElementById('player-count');
-            const playerNameInputs = document.getElementById('player-name-inputs');
-
-            if (!confirmPlayerCountBtn || !startGroupStageBtn) return;
-
-            confirmPlayerCountBtn.addEventListener('click', () => {
-                const count = parseInt(playerCountInput.value);
-                if (count < 2 || count > 8) {
-                    alert('Please enter a number between 2 and 8');
-                    return;
-                }
-                
-                playerNameInputs.innerHTML = '';
-                for (let i = 1; i <= count; i++) {
-                    const div = document.createElement('div');
-                    div.className = 'mb-4';
-                    div.innerHTML = `
-                        <label class="block text-sm font-medium mb-1 text-center">Player ${i} Name:</label>
-                        <input type="text" id="player-${i}-name" placeholder="Enter name for Player ${i}" class="tournament-input" value="Player ${i}">
-                    `;
-                    playerNameInputs.appendChild(div);
-                }
-                startGroupStageBtn.classList.remove('hidden');
-            });
-
-            startGroupStageBtn.addEventListener('click', () => {
-                const count = parseInt(playerCountInput.value);
-                players = [];
-                
-                for (let i = 1; i <= count; i++) {
-                    const nameInput = document.getElementById(`player-${i}-name`);
-                    if (!nameInput) {
-                        alert(`Error: Could not find input for player ${i}`);
-                        return;
-                    }
-                    
-                    const name = nameInput.value.trim() || `Player ${i}`;
-                    players.push({
-                        name: name,
-                        wins: 0,
-                        losses: 0,
-                        pointsFor: 0,
-                        pointsAgainst: 0,
-                        pointDiff: 0
-                    });
-                }
-
-                if (players.length < 2) {
-                    alert('Need at least 2 players to start tournament');
-                    return;
-                }
-
-                // Generate matches
-                matches = [];
-                for (let i = 0; i < players.length; i++) {
-                    for (let j = i + 1; j < players.length; j++) {
-                        matches.push({
-                            player1: i,
-                            player2: j,
-                            completed: false
-                        });
-                    }
-                }
-
-                // Shuffle matches
-                for (let i = matches.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [matches[i], matches[j]] = [matches[j], matches[i]];
-                }
-
-                currentMatchIndex = 0;
-                
-                // Switch to group stage
-                document.getElementById('player-setup-phase').classList.add('hidden');
-                document.getElementById('group-stage-phase').classList.remove('hidden');
-                
-                showCurrentMatch();
-                updateStandings();
-            });
+        function confirmPlayers() {
+            const count = parseInt(document.getElementById('player-count').value);
+            if (count < 2 || count > 8) {
+                alert('Please enter a number between 2 and 8');
+                return;
+            }
+            
+            const container = document.getElementById('player-name-inputs');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const div = document.createElement('div');
+                div.className = 'mb-4';
+                div.innerHTML = `
+                    <label class="block text-sm font-medium mb-1 text-center">Player ${i} Name:</label>
+                    <input type="text" id="player-${i}-name" placeholder="Player ${i}" class="tournament-input" value="Player ${i}">
+                `;
+                container.appendChild(div);
+            }
+            
+            document.getElementById('start-group-stage').classList.remove('hidden');
         }
 
-        function setupGroupStageHandlers() {
-            const submitScoreBtn = document.getElementById('submit-score');
-            const finishGroupStageBtn = document.getElementById('finish-group-stage');
-
-            if (!submitScoreBtn || !finishGroupStageBtn) return;
-
-            submitScoreBtn.addEventListener('click', () => {
-                const score1 = parseInt(document.getElementById('player1-score').value) || 0;
-                const score2 = parseInt(document.getElementById('player2-score').value) || 0;
-                
-                if (score1 === score2) {
-                    alert('Scores cannot be tied. Please enter different scores.');
-                    return;
-                }
-
-                const match = matches[currentMatchIndex];
-                const p1 = players[match.player1];
-                const p2 = players[match.player2];
-
-                p1.pointsFor += score1;
-                p1.pointsAgainst += score2;
-                p2.pointsFor += score2;
-                p2.pointsAgainst += score1;
-
-                if (score1 > score2) {
-                    p1.wins++;
-                    p2.losses++;
-                } else {
-                    p2.wins++;
-                    p1.losses++;
-                }
-
-                p1.pointDiff = p1.pointsFor - p1.pointsAgainst;
-                p2.pointDiff = p2.pointsFor - p2.pointsAgainst;
-
-                match.completed = true;
-                currentMatchIndex++;
-                
-                updateStandings();
-                showCurrentMatch();
-            });
-
-            finishGroupStageBtn.addEventListener('click', () => {
-                const sortedPlayers = [...players].sort((a, b) => {
-                    if (b.wins !== a.wins) return b.wins - a.wins;
-                    return b.pointDiff - a.pointDiff;
+        function startGroupStage() {
+            const count = parseInt(document.getElementById('player-count').value);
+            players = [];
+            
+            for (let i = 1; i <= count; i++) {
+                const nameInput = document.getElementById(`player-${i}-name`);
+                const name = nameInput.value.trim() || `Player ${i}`;
+                players.push({
+                    name: name,
+                    wins: 0,
+                    losses: 0,
+                    pointsFor: 0,
+                    pointsAgainst: 0,
+                    pointDiff: 0
                 });
+            }
 
-                const knockoutPlayers = sortedPlayers.slice(0, 4);
-                
-                knockoutMatches = [
-                    { player1: knockoutPlayers[0], player2: knockoutPlayers[3], stage: 'semifinal', completed: false },
-                    { player1: knockoutPlayers[1], player2: knockoutPlayers[2], stage: 'semifinal', completed: false }
-                ];
-
-                currentKnockoutIndex = 0;
-                knockoutStage = 'semifinals';
-                
-                document.getElementById('group-stage-phase').classList.add('hidden');
-                document.getElementById('knockout-stage-phase').classList.remove('hidden');
-                
-                showCurrentKnockoutMatch();
-                updateKnockoutBracket();
-            });
-        }
-
-        function setupKnockoutHandlers() {
-            const submitKoScoreBtn = document.getElementById('submit-ko-score');
-            if (!submitKoScoreBtn) return;
-
-            submitKoScoreBtn.addEventListener('click', () => {
-                const score1 = parseInt(document.getElementById('ko-player1-score').value) || 0;
-                const score2 = parseInt(document.getElementById('ko-player2-score').value) || 0;
-                
-                if (score1 === score2) {
-                    alert('Scores cannot be tied in knockout stage. Please enter different scores.');
-                    return;
+            // Generate round-robin matches
+            matches = [];
+            for (let i = 0; i < players.length; i++) {
+                for (let j = i + 1; j < players.length; j++) {
+                    matches.push({ player1: i, player2: j, completed: false });
                 }
+            }
 
-                const match = knockoutMatches[currentKnockoutIndex];
-                
-                if (score1 > score2) {
-                    match.winner = match.player1;
-                    match.loser = match.player2;
-                } else {
-                    match.winner = match.player2;
-                    match.loser = match.player1;
-                }
+            // Shuffle matches
+            for (let i = matches.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [matches[i], matches[j]] = [matches[j], matches[i]];
+            }
 
-                match.completed = true;
-                updateKnockoutBracket();
-                showCurrentKnockoutMatch();
-            });
-        }
-
-        function setupResetHandler() {
-            const resetBtn = document.getElementById('reset-tournament-button');
-            if (!resetBtn) return;
-
-            resetBtn.addEventListener('click', () => {
-                // Reset all tournament data
-                players = [];
-                matches = [];
-                currentMatchIndex = 0;
-                knockoutMatches = [];
-                currentKnockoutIndex = 0;
-                knockoutStage = 'semifinals';
-                finalResults = {};
-
-                // Clear inputs
-                document.getElementById('player-count').value = '4';
-                document.getElementById('player-name-inputs').innerHTML = '';
-                document.getElementById('start-group-stage').classList.add('hidden');
-
-                // Return to player setup
-                resetToPlayerSetup();
-            });
+            currentMatchIndex = 0;
+            
+            document.getElementById('player-setup-phase').classList.add('hidden');
+            document.getElementById('group-stage-phase').classList.remove('hidden');
+            
+            showCurrentMatch();
+            updateStandings();
         }
 
         function showCurrentMatch() {
-            const currentMatchDisplay = document.getElementById('current-match-display');
-            const player1Name = document.getElementById('player1-name');
-            const player2Name = document.getElementById('player2-name');
-            const player1Score = document.getElementById('player1-score');
-            const player2Score = document.getElementById('player2-score');
-            const finishGroupStageBtn = document.getElementById('finish-group-stage');
-
             if (currentMatchIndex >= matches.length) {
-                currentMatchDisplay.textContent = 'All group stage matches completed!';
+                document.getElementById('current-match-display').textContent = 'All group stage matches completed!';
                 document.getElementById('score-input').classList.add('hidden');
-                finishGroupStageBtn.classList.remove('hidden');
+                document.getElementById('finish-group-stage').classList.remove('hidden');
                 return;
             }
 
@@ -669,24 +326,60 @@
             const p1 = players[match.player1];
             const p2 = players[match.player2];
             
-            currentMatchDisplay.textContent = `Match ${currentMatchIndex + 1} of ${matches.length}`;
-            player1Name.textContent = p1.name;
-            player2Name.textContent = p2.name;
-            player1Score.value = 0;
-            player2Score.value = 0;
-            document.getElementById('score-input').classList.remove('hidden');
+            document.getElementById('current-match-display').textContent = `Match ${currentMatchIndex + 1} of ${matches.length}`;
+            document.getElementById('player1-name').textContent = p1.name;
+            document.getElementById('player2-name').textContent = p2.name;
+            document.getElementById('player1-score').value = 0;
+            document.getElementById('player2-score').value = 0;
+        }
+
+        function submitScore() {
+            const score1 = parseInt(document.getElementById('player1-score').value) || 0;
+            const score2 = parseInt(document.getElementById('player2-score').value) || 0;
+            
+            if (score1 === score2) {
+                alert('Scores cannot be tied. Please enter different scores.');
+                return;
+            }
+
+            const match = matches[currentMatchIndex];
+            const p1 = players[match.player1];
+            const p2 = players[match.player2];
+
+            p1.pointsFor += score1;
+            p1.pointsAgainst += score2;
+            p2.pointsFor += score2;
+            p2.pointsAgainst += score1;
+
+            if (score1 > score2) {
+                p1.wins++;
+                p2.losses++;
+            } else {
+                p2.wins++;
+                p1.losses++;
+            }
+
+            p1.pointDiff = p1.pointsFor - p1.pointsAgainst;
+            p2.pointDiff = p2.pointsFor - p2.pointsAgainst;
+
+            match.completed = true;
+            currentMatchIndex++;
+            
+            updateStandings();
+            showCurrentMatch();
         }
 
         function updateStandings() {
-            const standingsTable = document.getElementById('standings-table').getElementsByTagName('tbody')[0];
             const sortedPlayers = [...players].sort((a, b) => {
                 if (b.wins !== a.wins) return b.wins - a.wins;
                 return b.pointDiff - a.pointDiff;
             });
 
-            standingsTable.innerHTML = '';
+            const tbody = document.getElementById('standings-table').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            
             sortedPlayers.forEach((player, index) => {
-                const row = standingsTable.insertRow();
+                const row = tbody.insertRow();
                 row.innerHTML = `
                     <td>${index + 1}</td>
                     <td class="font-bold">${player.name}</td>
@@ -694,45 +387,61 @@
                     <td>${player.losses}</td>
                     <td>${player.pointsFor}</td>
                     <td>${player.pointsAgainst}</td>
-                    <td class="${player.pointDiff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold">${player.pointDiff > 0 ? '+' : ''}${player.pointDiff}</td>
+                    <td class="${player.pointDiff >= 0 ? 'text-green-600' : 'text-red-600'} font-bold">
+                        ${player.pointDiff > 0 ? '+' : ''}${player.pointDiff}
+                    </td>
                 `;
             });
         }
 
-        function showCurrentKnockoutMatch() {
-            const knockoutMatchDisplay = document.getElementById('knockout-match-display');
-            const koPlayer1Name = document.getElementById('ko-player1-name');
-            const koPlayer2Name = document.getElementById('ko-player2-name');
-            const koPlayer1Score = document.getElementById('ko-player1-score');
-            const koPlayer2Score = document.getElementById('ko-player2-score');
+        function startKnockout() {
+            const sortedPlayers = [...players].sort((a, b) => {
+                if (b.wins !== a.wins) return b.wins - a.wins;
+                return b.pointDiff - a.pointDiff;
+            });
 
+            const top4 = sortedPlayers.slice(0, 4);
+            knockoutMatches = [
+                { player1: top4[0], player2: top4[3], stage: 'semifinal', completed: false },
+                { player1: top4[1], player2: top4[2], stage: 'semifinal', completed: false }
+            ];
+
+            currentKnockoutIndex = 0;
+            knockoutStage = 'semifinals';
+            
+            document.getElementById('group-stage-phase').classList.add('hidden');
+            document.getElementById('knockout-stage-phase').classList.remove('hidden');
+            
+            showCurrentKnockoutMatch();
+        }
+
+        function showCurrentKnockoutMatch() {
             let availableMatches = knockoutMatches.filter(m => !m.completed);
             
             if (availableMatches.length === 0) {
                 if (knockoutStage === 'semifinals') {
-                    const semifinalLosers = knockoutMatches.filter(m => m.stage === 'semifinal' && m.loser);
-                    const semifinalWinners = knockoutMatches.filter(m => m.stage === 'semifinal' && m.winner);
+                    const losers = knockoutMatches.filter(m => m.stage === 'semifinal' && m.loser);
+                    const winners = knockoutMatches.filter(m => m.stage === 'semifinal' && m.winner);
                     
-                    if (semifinalLosers.length === 2) {
+                    if (losers.length === 2) {
                         knockoutMatches.push({
-                            player1: semifinalLosers[0].loser,
-                            player2: semifinalLosers[1].loser,
+                            player1: losers[0].loser,
+                            player2: losers[1].loser,
                             stage: 'third-place',
                             completed: false
                         });
                     }
                     
-                    if (semifinalWinners.length === 2) {
+                    if (winners.length === 2) {
                         knockoutMatches.push({
-                            player1: semifinalWinners[0].winner,
-                            player2: semifinalWinners[1].winner,
+                            player1: winners[0].winner,
+                            player2: winners[1].winner,
                             stage: 'final',
                             completed: false
                         });
                     }
                     
                     knockoutStage = 'third-place';
-                    updateKnockoutBracket();
                     showCurrentKnockoutMatch();
                     return;
                 } else if (knockoutStage === 'third-place') {
@@ -748,13 +457,72 @@
             const match = availableMatches[0];
             currentKnockoutIndex = knockoutMatches.indexOf(match);
             
-            let stageText = '';
-            if (match.stage === 'semifinal') stageText = 'Semi-final';
-            else if (match.stage === 'third-place') stageText = '3rd Place Match';
-            else if (match.stage === 'final') stageText = 'FINAL';
+            let stageText = match.stage === 'semifinal' ? 'Semi-final' : 
+                          match.stage === 'third-place' ? '3rd Place Match' : 'FINAL';
             
-            knockoutMatchDisplay.textContent = stageText;
-            koPlayer1Name.textContent = match.player1.name;
-            koPlayer2Name.textContent = match.player2.name;
-            koPlayer1Score.value = 0;
-            koPlayer2Score.value = 0;
+            document.getElementById('knockout-match-display').textContent = stageText;
+            document.getElementById('ko-player1-name').textContent = match.player1.name;
+            document.getElementById('ko-player2-name').textContent = match.player2.name;
+            document.getElementById('ko-player1-score').value = 0;
+            document.getElementById('ko-player2-score').value = 0;
+        }
+
+        function submitKnockoutScore() {
+            const score1 = parseInt(document.getElementById('ko-player1-score').value) || 0;
+            const score2 = parseInt(document.getElementById('ko-player2-score').value) || 0;
+            
+            if (score1 === score2) {
+                alert('Knockout matches cannot be tied!');
+                return;
+            }
+
+            const match = knockoutMatches[currentKnockoutIndex];
+            
+            if (score1 > score2) {
+                match.winner = match.player1;
+                match.loser = match.player2;
+            } else {
+                match.winner = match.player2;
+                match.loser = match.player1;
+            }
+
+            match.completed = true;
+            showCurrentKnockoutMatch();
+        }
+
+        function showFinalResults() {
+            const finalMatch = knockoutMatches.find(m => m.stage === 'final');
+            const thirdMatch = knockoutMatches.find(m => m.stage === 'third-place');
+            
+            let results = '<h4 class="text-xl font-bold mb-4">Final Results:</h4>';
+            if (finalMatch && finalMatch.winner) {
+                results += `<p class="text-2xl text-gold-500 font-bold">🥇 Champion: ${finalMatch.winner.name}</p>`;
+                results += `<p class="text-xl text-gray-600">🥈 Runner-up: ${finalMatch.loser.name}</p>`;
+            }
+            if (thirdMatch && thirdMatch.winner) {
+                results += `<p class="text-lg text-orange-600">🥉 Third Place: ${thirdMatch.winner.name}</p>`;
+            }
+            
+            document.getElementById('winners-display').innerHTML = results;
+            document.getElementById('knockout-score-input').classList.add('hidden');
+            document.getElementById('reset-button').classList.remove('hidden');
+        }
+
+        function resetTournament() {
+            // Reset everything
+            players = [];
+            matches = [];
+            currentMatchIndex = 0;
+            knockoutMatches = [];
+            currentKnockoutIndex = 0;
+            knockoutStage = 'semifinals';
+
+            document.getElementById('player-count').value = '4';
+            document.getElementById('player-name-inputs').innerHTML = '';
+            document.getElementById('start-group-stage').classList.add('hidden');
+            
+            resetToPlayerSetup();
+        }
+    </script>
+</body>
+</html>
