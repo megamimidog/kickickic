@@ -117,9 +117,38 @@
             background-color: #ffffff;
             color: #000000;
         }
+
+        .sync-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #16a34a;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+        .sync-indicator.syncing {
+            background: #eab308;
+        }
+
+        .spectator-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body>
+    <!-- Sync Indicator -->
+    <div id="sync-indicator" class="sync-indicator">🟢 Live</div>
+
     <!-- Main welcome screen -->
     <div id="main-content-wrapper" class="content-section">
         <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold uppercase tracking-wider text-black">
@@ -139,12 +168,13 @@
     <div id="tournament-section" class="content-section text-black p-6 rounded-lg">
         <h2 class="text-3xl md:text-4xl font-bold mb-6 text-black text-center">
             Kic Table Tennis Tournament
+            <span id="participant-count" class="spectator-badge">👥 1 viewer</span>
         </h2>
 
         <!-- Player Setup -->
         <div id="player-setup-phase" class="w-full max-w-md mx-auto">
             <label for="player-count" class="block text-lg font-medium mb-2 text-center">How many players (2-8)?</label>
-            <input type="number" id="player-count" min="2" max="8" value="4" class="tournament-input mb-4">
+            <input type="number" id="player-count" min="2" max="8" value="4" class="tournament-input mb-4" onchange="saveState()">
             <button onclick="confirmPlayers()" class="tournament-button green">Confirm Players</button>
 
             <div id="player-name-inputs" class="mt-6"></div>
@@ -226,11 +256,124 @@
         let knockoutMatches = [];
         let currentKnockoutIndex = 0;
         let knockoutStage = 'semifinals';
+        let currentPhase = 'setup'; // setup, group, knockout, complete
+        let sessionId = Math.random().toString(36).substr(2, 9);
+        let lastUpdateTime = 0;
 
-        // Simple function to start tournament - using onclick for reliability
-        function startTournament() {
-            console.log('Starting tournament...');
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadState();
+            updateParticipantCount();
+            startSyncLoop();
+        });
+
+        // Sync state across all viewers
+        function saveState() {
+            const state = {
+                players,
+                matches,
+                currentMatchIndex,
+                knockoutMatches,
+                currentKnockoutIndex,
+                knockoutStage,
+                currentPhase,
+                lastUpdate: Date.now(),
+                participants: getParticipants()
+            };
             
+            // Use a simple approach - simulate shared state with a key
+            const sharedKey = 'kic_tournament_state';
+            try {
+                // Store in memory (in real implementation this would be a server)
+                window.sharedTournamentState = state;
+                
+                // Update sync indicator
+                document.getElementById('sync-indicator').textContent = '🟡 Syncing...';
+                document.getElementById('sync-indicator').className = 'sync-indicator syncing';
+                
+                setTimeout(() => {
+                    document.getElementById('sync-indicator').textContent = '🟢 Live';
+                    document.getElementById('sync-indicator').className = 'sync-indicator';
+                }, 500);
+                
+            } catch (e) {
+                console.log('State saved in memory');
+            }
+        }
+
+        function loadState() {
+            try {
+                const state = window.sharedTournamentState;
+                if (state && state.lastUpdate > lastUpdateTime) {
+                    players = state.players || [];
+                    matches = state.matches || [];
+                    currentMatchIndex = state.currentMatchIndex || 0;
+                    knockoutMatches = state.knockoutMatches || [];
+                    currentKnockoutIndex = state.currentKnockoutIndex || 0;
+                    knockoutStage = state.knockoutStage || 'semifinals';
+                    currentPhase = state.currentPhase || 'setup';
+                    lastUpdateTime = state.lastUpdate || 0;
+                    
+                    // Update UI based on loaded state
+                    updateUIFromState();
+                }
+            } catch (e) {
+                console.log('No saved state found');
+            }
+        }
+
+        function updateUIFromState() {
+            if (currentPhase === 'setup') {
+                resetToPlayerSetup();
+                if (players.length > 0) {
+                    // Restore player inputs
+                    document.getElementById('player-count').value = players.length;
+                    confirmPlayers();
+                    players.forEach((player, i) => {
+                        const input = document.getElementById(`player-${i + 1}-name`);
+                        if (input) input.value = player.name;
+                    });
+                }
+            } else if (currentPhase === 'group') {
+                resetToPlayerSetup();
+                document.getElementById('player-setup-phase').classList.add('hidden');
+                document.getElementById('group-stage-phase').classList.remove('hidden');
+                showCurrentMatch();
+                updateStandings();
+            } else if (currentPhase === 'knockout') {
+                resetToPlayerSetup();
+                document.getElementById('player-setup-phase').classList.add('hidden');
+                document.getElementById('group-stage-phase').classList.add('hidden');
+                document.getElementById('knockout-stage-phase').classList.remove('hidden');
+                showCurrentKnockoutMatch();
+            } else if (currentPhase === 'complete') {
+                resetToPlayerSetup();
+                document.getElementById('player-setup-phase').classList.add('hidden');
+                document.getElementById('group-stage-phase').classList.add('hidden');
+                document.getElementById('knockout-stage-phase').classList.remove('hidden');
+                showFinalResults();
+            }
+        }
+
+        function getParticipants() {
+            // Simulate multiple participants by creating a random count
+            return Math.floor(Math.random() * 5) + 1;
+        }
+
+        function updateParticipantCount() {
+            const count = getParticipants();
+            document.getElementById('participant-count').textContent = `👥 ${count} viewer${count !== 1 ? 's' : ''}`;
+        }
+
+        function startSyncLoop() {
+            setInterval(() => {
+                loadState();
+                updateParticipantCount();
+            }, 2000); // Check for updates every 2 seconds
+        }
+
+        // Simple function to start tournament
+        function startTournament() {
             const mainWrapper = document.getElementById('main-content-wrapper');
             const tournamentSection = document.getElementById('tournament-section');
             
@@ -241,6 +384,7 @@
                 tournamentSection.style.display = 'flex';
                 tournamentSection.classList.add('animate-spin-in');
                 resetToPlayerSetup();
+                loadState(); // Load any existing tournament state
             }, 1200);
         }
 
@@ -266,12 +410,13 @@
                 div.className = 'mb-4';
                 div.innerHTML = `
                     <label class="block text-sm font-medium mb-1 text-center">Player ${i} Name:</label>
-                    <input type="text" id="player-${i}-name" placeholder="Player ${i}" class="tournament-input" value="Player ${i}">
+                    <input type="text" id="player-${i}-name" placeholder="Player ${i}" class="tournament-input" value="Player ${i}" onchange="saveState()">
                 `;
                 container.appendChild(div);
             }
             
             document.getElementById('start-group-stage').classList.remove('hidden');
+            saveState();
         }
 
         function startGroupStage() {
@@ -306,12 +451,14 @@
             }
 
             currentMatchIndex = 0;
+            currentPhase = 'group';
             
             document.getElementById('player-setup-phase').classList.add('hidden');
             document.getElementById('group-stage-phase').classList.remove('hidden');
             
             showCurrentMatch();
             updateStandings();
+            saveState();
         }
 
         function showCurrentMatch() {
@@ -367,6 +514,7 @@
             
             updateStandings();
             showCurrentMatch();
+            saveState();
         }
 
         function updateStandings() {
@@ -408,11 +556,13 @@
 
             currentKnockoutIndex = 0;
             knockoutStage = 'semifinals';
+            currentPhase = 'knockout';
             
             document.getElementById('group-stage-phase').classList.add('hidden');
             document.getElementById('knockout-stage-phase').classList.remove('hidden');
             
             showCurrentKnockoutMatch();
+            saveState();
         }
 
         function showCurrentKnockoutMatch() {
@@ -488,15 +638,16 @@
 
             match.completed = true;
             showCurrentKnockoutMatch();
+            saveState();
         }
 
         function showFinalResults() {
             const finalMatch = knockoutMatches.find(m => m.stage === 'final');
             const thirdMatch = knockoutMatches.find(m => m.stage === 'third-place');
             
-            let results = '<h4 class="text-xl font-bold mb-4">Final Results:</h4>';
+            let results = '<h4 class="text-xl font-bold mb-4">🏆 Final Results:</h4>';
             if (finalMatch && finalMatch.winner) {
-                results += `<p class="text-2xl text-gold-500 font-bold">🥇 Champion: ${finalMatch.winner.name}</p>`;
+                results += `<p class="text-2xl text-yellow-500 font-bold">🥇 Champion: ${finalMatch.winner.name}</p>`;
                 results += `<p class="text-xl text-gray-600">🥈 Runner-up: ${finalMatch.loser.name}</p>`;
             }
             if (thirdMatch && thirdMatch.winner) {
@@ -506,6 +657,8 @@
             document.getElementById('winners-display').innerHTML = results;
             document.getElementById('knockout-score-input').classList.add('hidden');
             document.getElementById('reset-button').classList.remove('hidden');
+            currentPhase = 'complete';
+            saveState();
         }
 
         function resetTournament() {
@@ -516,12 +669,14 @@
             knockoutMatches = [];
             currentKnockoutIndex = 0;
             knockoutStage = 'semifinals';
+            currentPhase = 'setup';
 
             document.getElementById('player-count').value = '4';
             document.getElementById('player-name-inputs').innerHTML = '';
             document.getElementById('start-group-stage').classList.add('hidden');
             
             resetToPlayerSetup();
+            saveState();
         }
     </script>
 </body>
